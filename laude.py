@@ -4,7 +4,7 @@ from telegram.ext import Application, CommandHandler, CallbackContext
 import os
 
 # Configuration
-TELEGRAM_BOT_TOKEN = ("7819992909:AAHn51FAfPId42gmKUT5wPmCoyC4_g9OeN0")  # Fetch token from environment variable
+TELEGRAM_BOT_TOKEN = ("7749918794:AAFlgbWy2k9BTzJMPjFB1eJe7G4WUBniMrQ")  # Fetch token from environment variable
 ADMIN_USER_ID = 1662672529
 APPROVED_IDS_FILE = 'approved_ids.txt'
 CHANNEL_ID = "@Godxcheatsaloneboy"  # Replace with your channel username
